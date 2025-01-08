@@ -1,4 +1,5 @@
 const express = require("express");
+const morgan = require("morgan");
 const app = express();
 
 var notes = [
@@ -25,6 +26,8 @@ var notes = [
 ]
 
 app.use(express.json())
+morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 app.get("/info", (req, res) => {
     res.send(
@@ -67,7 +70,6 @@ app.post("/api/persons", (req, res) => {
         res.json({ error: "name must be unique" })
         return
     }
-    console.log("No issues");
     let id = Math.floor(Math.random() * 1000).toString()
     while (notes.some((e) => (e.id === id)))
         id = Math.floor(Math.random() * 1000).toString()
