@@ -52,4 +52,14 @@ app.get("/api/persons", (req, res) => {
     res.json(notes);
 })
 
+app.post("/api/persons", (req, res) => {
+    if (notes.length >= 500) res.send("Need to upgrade id cant")
+    const { name, number } = req.body;
+    let id = Math.floor(Math.random() * 1000).toString()
+    while (notes.some((e) => (e.id === id)))
+        id = Math.floor(Math.random() * 1000).toString()
+    notes.push({ name, number, id })
+    res.json(notes)
+})
+
 app.listen(3001, () => { console.log("Server running in port 3001") })

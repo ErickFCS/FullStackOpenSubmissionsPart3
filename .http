@@ -3,3 +3,13 @@ GET http://localhost:3001/info HTTP/1.1
 GET http://localhost:3001/info/1 HTTP/1.1
 ###
 DELETE http://localhost:3001/info/1 HTTP/1.1
+###
+GET http://localhost:3001/api/persons HTTP/1.1
+###
+POST http://localhost:3001/api/persons HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "Erick",
+    "number": "1234567890"
+}
