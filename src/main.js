@@ -42,6 +42,12 @@ app.get("/info/:id", (req, res) => {
     }
 })
 
+app.delete("/info/:id", (req, res) => {
+    const id = req.params.id
+    notes = notes.filter((e) => (e.id !== id))
+    res.status(204)
+})
+
 app.get("/api/persons", (req, res) => {
     res.json(notes);
 })
