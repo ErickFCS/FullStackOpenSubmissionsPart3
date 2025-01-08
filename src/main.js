@@ -32,6 +32,16 @@ app.get("/info", (req, res) => {
     );
 })
 
+app.get("/info/:id", (req, res) => {
+    const id = req.params.id
+    const note = notes.find(note => note.id === id)
+    if (note) {
+        res.json(note)
+    } else {
+        res.status(404).json({ error: "Note not found" })
+    }
+})
+
 app.get("/api/persons", (req, res) => {
     res.json(notes);
 })
