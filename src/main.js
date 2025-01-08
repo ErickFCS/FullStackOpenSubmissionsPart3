@@ -26,6 +26,12 @@ var notes = [
 
 app.use(express.json())
 
+app.get("/info", (req, res) => {
+    res.send(
+        `Phonebook has info for ${notes.length} people<br/>${new Date().toLocaleString()}`
+    );
+})
+
 app.get("/api/persons", (req, res) => {
     res.json(notes);
 })
