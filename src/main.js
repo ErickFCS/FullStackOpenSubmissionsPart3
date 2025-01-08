@@ -55,6 +55,19 @@ app.get("/api/persons", (req, res) => {
 app.post("/api/persons", (req, res) => {
     if (notes.length >= 500) res.send("Need to upgrade id cant")
     const { name, number } = req.body;
+    if (!name) {
+        res.json({ error: "name must be given" })
+        return
+    }
+    if (!number) {
+        res.json({ error: "number must be given" })
+        return
+    }
+    if (notes.some((e) => (e.name === name))) {
+        res.json({ error: "name must be unique" })
+        return
+    }
+    console.log("No issues");
     let id = Math.floor(Math.random() * 1000).toString()
     while (notes.some((e) => (e.id === id)))
         id = Math.floor(Math.random() * 1000).toString()
