@@ -54,9 +54,18 @@ app.get("/info/:id", async (req, res) => {
     }
 })
 
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", async (req, res) => {
     const id = req.params.id
-    notes = notes.filter((e) => (e.id !== id))
+    let r = await person
+        .deleteOne({ _id: id })
+        .catch((err) => {
+            console.log(err)
+            res.status(400).end()
+        })
+    if (r && !r.deletedCount) {
+        res.status(404).end()
+        return
+    }
     res.status(204).end()
 })
 
