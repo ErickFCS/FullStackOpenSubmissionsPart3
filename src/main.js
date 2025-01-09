@@ -68,7 +68,7 @@ app.get("/api/persons", async (req, res) => {
     res.json(persons);
 })
 
-app.post("/api/persons", async (req, res) => {
+app.post("/api/persons", async (req, res, next) => {
     const { name, number } = req.body;
     if (!name) {
         res.json({ error: "name must be given" })
@@ -84,8 +84,13 @@ app.post("/api/persons", async (req, res) => {
         return
     }
     const newNote = new person({ name, number })
-    const { id } = await newNote.save()
-    console.log(id);
+    const { id } = await newNote
+        .save()
+        .catch((err) => {
+            next(err)
+            return { id: undefined }
+        })
+    if (!id) return
     res.json(persons.concat({ name, number, id }))
 })
 
@@ -114,7 +119,13 @@ app.put("/api/persons/:id", async (req, res, next) => {
         res.json({ error: "name is different" })
         return
     }
-    await person.updateOne({ _id: id }, { $set: { name, number } })
+    const r = await person
+        .updateOne({ _id: id }, { $set: { name, number } }, { runValidators: true })
+        .catch((err) => {
+            next(err)
+            return undefined
+        })
+    if (!r) return
     const persons = await person.find({})
     res.json(persons)
 })
@@ -125,6 +136,8 @@ app.use((err, req, res, next) => {
 
     if (err.name === 'CastError') {
         return res.status(400).send({ error: 'malformatted id' })
+    } else if (err.name === 'ValidationError') {
+        res.status(400).json({ error: err.errors.name.message })
     }
 
     next(err)

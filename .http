@@ -10,7 +10,7 @@ POST http://localhost:3001/api/persons HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "Fernando",
+    "name": "Er",
     "number": "1234567890",
     "EOL":true
 }
