@@ -1,7 +1,9 @@
-require("dotenv/config");
-const express = require("express");
-const cors = require("cors");
-const morgan = require("morgan");
+console.clear()
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import morgan from "morgan";
+import person from "./models/person.js";
 const app = express();
 app.set('etag', false);
 
@@ -34,15 +36,17 @@ morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(express.static("dist"))
 
-app.get("/info", (req, res) => {
+app.get("/info", async (req, res) => {
+    const notes = await person.find({})
     res.send(
         `Phonebook has info for ${notes.length} people<br/>${new Date().toLocaleString()}`
     );
 })
 
-app.get("/info/:id", (req, res) => {
+app.get("/info/:id", async (req, res) => {
     const id = req.params.id
-    const note = notes.find(note => note.id === id)
+    const note = await person.find({ id: id })
+    console.log(note);
     if (note) {
         res.json(note)
     } else {
@@ -56,12 +60,12 @@ app.delete("/api/persons/:id", (req, res) => {
     res.status(204).end()
 })
 
-app.get("/api/persons", (req, res) => {
+app.get("/api/persons", async (req, res) => {
+    const notes = await person.find({})
     res.json(notes);
 })
 
-app.post("/api/persons", (req, res) => {
-    if (notes.length >= 500) res.send("Need to upgrade id cant")
+app.post("/api/persons", async (req, res) => {
     const { name, number } = req.body;
     if (!name) {
         res.json({ error: "name must be given" })
@@ -71,15 +75,15 @@ app.post("/api/persons", (req, res) => {
         res.json({ error: "number must be given" })
         return
     }
+    const notes = await person.find({})
     if (notes.some((e) => (e.name === name))) {
         res.json({ error: "name must be unique" })
         return
     }
-    let id = Math.floor(Math.random() * 1000).toString()
-    while (notes.some((e) => (e.id === id)))
-        id = Math.floor(Math.random() * 1000).toString()
-    notes.push({ name, number, id })
-    res.json(notes)
+    const newNote = new person({ name, number })
+    const { id } = await newNote.save()
+    console.log(id);
+    res.json(notes.concat({ name, number, id }))
 })
 
 app.put("/api/persons/:id", (req, res) => {
