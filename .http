@@ -14,3 +14,12 @@ Content-Type: application/json
     "number": "1234567890",
     "EOL":true
 }
+###
+PUT http://localhost:3001/api/persons/67802d03c19d03021508a8be HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "Fernando",
+    "number": "0987654321",
+    "EOL":true
+}

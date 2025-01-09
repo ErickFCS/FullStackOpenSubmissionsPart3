@@ -7,29 +7,6 @@ import person from "./models/person.js";
 const app = express();
 app.set('etag', false);
 
-var notes = [
-    {
-        "id": "1",
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": "2",
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": "3",
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": "4",
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
-
 app.use(express.json())
 app.use(cors())
 morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
@@ -37,9 +14,9 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 app.use(express.static("dist"))
 
 app.get("/info", async (req, res) => {
-    const notes = await person.find({})
+    const persons = await person.find({})
     res.send(
-        `Phonebook has info for ${notes.length} people<br/>${new Date().toLocaleString()}`
+        `Phonebook has info for ${persons.length} people<br/>${new Date().toLocaleString()}`
     );
 })
 
@@ -68,8 +45,8 @@ app.delete("/api/persons/:id", async (req, res, next) => {
 })
 
 app.get("/api/persons", async (req, res) => {
-    const notes = await person.find({})
-    res.json(notes);
+    const persons = await person.find({})
+    res.json(persons);
 })
 
 app.post("/api/persons", async (req, res) => {
@@ -82,21 +59,25 @@ app.post("/api/persons", async (req, res) => {
         res.json({ error: "number must be given" })
         return
     }
-    const notes = await person.find({})
-    if (notes.some((e) => (e.name === name))) {
+    const persons = await person.find({})
+    if (persons.some((e) => (e.name === name))) {
         res.json({ error: "name must be unique" })
         return
     }
     const newNote = new person({ name, number })
     const { id } = await newNote.save()
     console.log(id);
-    res.json(notes.concat({ name, number, id }))
+    res.json(persons.concat({ name, number, id }))
 })
 
-app.put("/api/persons/:id", (req, res) => {
+app.put("/api/persons/:id", async (req, res, next) => {
     const id = req.params.id;
-    const index = notes.findIndex((e) => (e.id === id))
-    if (index === -1) {
+    const target = await person
+        .find({ _id: id })
+        .catch((err) => {
+            next(err)
+        })
+    if (target.length === 0) {
         res.json({ error: "id doesn't exist" })
         return
     }
@@ -109,12 +90,13 @@ app.put("/api/persons/:id", (req, res) => {
         res.json({ error: "number must be given" })
         return
     }
-    if (notes[index].name !== name) {
+    if (target[0].name !== name) {
         res.json({ error: "name is different" })
         return
     }
-    notes.splice(index, 1, { name, number, id })
-    res.json(notes)
+    await person.updateOne({ _id: id }, { $set: { name, number } })
+    const persons = await person.find({})
+    res.json(persons)
 })
 
 app.use((err, req, res, next) => {
