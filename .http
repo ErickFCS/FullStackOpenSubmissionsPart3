@@ -1,6 +1,6 @@
 GET http://localhost:3001/info HTTP/1.1
 ###
-GET http://localhost:3001/info/1 HTTP/1.1
+GET http://localhost:3001/api/persons/678057b75e54b44b2f87c7b HTTP/1.1
 ###
 DELETE http://localhost:3001/api/persons/1 HTTP/1.1
 ###

@@ -20,11 +20,30 @@ app.get("/info", async (req, res) => {
     );
 })
 
-app.get("/info/:id", async (req, res) => {
+app.get("/info/:id", async (req, res, next) => {
     const id = req.params.id
-    const note = await person.find({ id: id })
-    console.log(note);
-    if (note) {
+    const note = await person
+        .find({ _id: id })
+        .catch((err) => {
+            next(err)
+        })
+    if (!note) return
+    if (note.length) {
+        res.json(note)
+    } else {
+        res.status(404).json({ error: "Note not found" })
+    }
+})
+
+app.get("/api/persons/:id", async (req, res, next) => {
+    const id = req.params.id
+    const note = await person
+        .find({ _id: id })
+        .catch((err) => {
+            next(err)
+        })
+    if (!note) return
+    if (note.length) {
         res.json(note)
     } else {
         res.status(404).json({ error: "Note not found" })
