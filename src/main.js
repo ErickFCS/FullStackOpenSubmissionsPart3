@@ -1,6 +1,8 @@
 const express = require("express");
+const cors = require("cors");
 const morgan = require("morgan");
 const app = express();
+app.set('etag', false);
 
 var notes = [
     {
@@ -26,6 +28,7 @@ var notes = [
 ]
 
 app.use(express.json())
+app.use(cors())
 morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
@@ -45,10 +48,10 @@ app.get("/info/:id", (req, res) => {
     }
 })
 
-app.delete("/info/:id", (req, res) => {
+app.delete("/api/persons/:id", (req, res) => {
     const id = req.params.id
     notes = notes.filter((e) => (e.id !== id))
-    res.status(204)
+    res.status(204).end()
 })
 
 app.get("/api/persons", (req, res) => {
@@ -74,6 +77,30 @@ app.post("/api/persons", (req, res) => {
     while (notes.some((e) => (e.id === id)))
         id = Math.floor(Math.random() * 1000).toString()
     notes.push({ name, number, id })
+    res.json(notes)
+})
+
+app.put("/api/persons/:id", (req, res) => {
+    const id = req.params.id;
+    const index = notes.findIndex((e) => (e.id === id))
+    if (index === -1) {
+        res.json({ error: "id doesn't exist" })
+        return
+    }
+    const { name, number } = req.body;
+    if (!name) {
+        res.json({ error: "name must be given" })
+        return
+    }
+    if (!number) {
+        res.json({ error: "number must be given" })
+        return
+    }
+    if (notes[index].name !== name) {
+        res.json({ error: "name is different" })
+        return
+    }
+    notes.splice(index, 1, { name, number, id })
     res.json(notes)
 })
 
