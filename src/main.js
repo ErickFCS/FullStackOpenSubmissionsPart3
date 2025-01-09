@@ -96,6 +96,7 @@ app.put("/api/persons/:id", async (req, res, next) => {
         .catch((err) => {
             next(err)
         })
+    if (!target) return
     if (target.length === 0) {
         res.json({ error: "id doesn't exist" })
         return
