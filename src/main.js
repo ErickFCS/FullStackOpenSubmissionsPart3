@@ -137,7 +137,13 @@ app.use((err, req, res, next) => {
     if (err.name === 'CastError') {
         return res.status(400).send({ error: 'malformatted id' })
     } else if (err.name === 'ValidationError') {
-        res.status(400).json({ error: err.errors.name.message })
+        if (err.errors.name)
+            res.status(400).json({ error: err.errors.name.message })
+        else if (err.errors.number)
+            res.status(400).json({ error: err.errors.number.message })
+        else
+            res.status(400).json({ error: "Validation error" })
+
     }
 
     next(err)

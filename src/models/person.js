@@ -10,8 +10,12 @@ const personSchema = mongoose.Schema({
         type: String,
         minLength: 3,
         required: true
-      },
-    number: Number,
+    },
+    number: {
+        type: String,
+        required: true,
+        validate: { validator: (v) => (/^[0-9]{2,3}-[0-9]{5,}$/.test(v)) }
+    },
 })
 
 personSchema.set("toObject", {
